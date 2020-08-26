@@ -5,8 +5,14 @@ var ReactDOM = require('react-dom');
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { get_products } from '../Actions/productListAction';
+import { clearCart } from '../Actions/cartAction';
+
 
 class CartTotals extends React.Component {
+    clearCart = () => {
+        this.props.get_products();
+        this.props.clearCart();
+    };
     render() {
         return (
             <div className='container'>
@@ -17,7 +23,7 @@ class CartTotals extends React.Component {
                             <button
                                 className='btn btn-outline-danger text-uppercase
                                 mb-3 px-5' type='button'
-                                onClick={() => { this.props.get_products() }}>
+                                onClick={this.clearCart}>
                                 clear cart
                             </button>
                         </Link>
@@ -41,9 +47,9 @@ class CartTotals extends React.Component {
 }
 
 const mapStateToProps = state => ({
-    cartSubTotal: state.cartSubTotal,
-    cartTax: state.cartTax,
-    cartTotal: state.cartTotal
+    cartSubTotal: state.reducer.cartSubTotal,
+    cartTax: state.reducer.cartTax,
+    cartTotal: state.reducer.cartTotal
 });
 
-export default connect(mapStateToProps, { get_products})(CartTotals);
+export default connect(mapStateToProps, { get_products,clearCart})(CartTotals);

@@ -7,12 +7,12 @@ import CartItem from './CartItem';
 
 class CartList extends React.Component {
     render() {
-        const list = this.props.cart.map(item => {
-            return <CartItem key={item.id} item={item}/>
+        let list_c = this.props.cart.map(function (item) {
+            return <CartItem key={item.id} item={{...item,count:item.count}} />
         });
         return (
             <div className='container-fluid'>
-                {list}
+                {list_c}
             </div>
             );
     }

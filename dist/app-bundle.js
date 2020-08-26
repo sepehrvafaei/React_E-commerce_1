@@ -90,7 +90,7 @@
 /*!*******************************!*\
   !*** ./Actions/cartAction.js ***!
   \*******************************/
-/*! exports provided: increment, decrement, removeItem */
+/*! exports provided: increment, decrement, removeItem, clearCart */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -98,6 +98,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "increment", function() { return increment; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "decrement", function() { return decrement; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeItem", function() { return removeItem; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clearCart", function() { return clearCart; });
 const increment = (id) => ({
     type: 'INCREMENT',
     payload: id
@@ -111,6 +112,10 @@ const decrement = (id) => ({
 const removeItem = (id) => ({
     type: 'REMOVE_ITEM',
     payload: id
+});
+
+const clearCart= () => ({
+    type: 'CLEAR_CART'
 });
 
 
@@ -189,6 +194,11 @@ __webpack_require__.r(__webpack_exports__);
 const initialState = {
     products: [],
     detail_product: {},
+    cart: [],
+    modalOpen: false,
+    cartSubTotal: 0,
+    cartTax: 0,
+    cartTotal: 0
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (function (state = initialState, action) {
@@ -200,13 +210,9 @@ const initialState = {
                 my_products = [...my_products,single];
             });
             return {
+                ...state,
                 products:my_products ,
                 detail_product: action.payload2,
-                cart: [],
-                modalOpen: false,
-                cartSubTotal: 0,
-                cartTax: 0,
-                cartTotal:0
             }
         case 'GET_PRODUCT':
             const product = state.products.find(x => x.id === action.payload);
@@ -226,7 +232,7 @@ const initialState = {
             let subTotal = state.cartSubTotal;
             subTotal += price ;
             const tempTax = subTotal * 0.1;
-            const tax = parseFloat(subTotal.toFixed(2));
+            const tax = parseFloat(tempTax.toFixed(2));
             const total = subTotal + tax;
             return {
                 ...state,
@@ -255,8 +261,88 @@ const initialState = {
                 modalOpen: false,
             }
         case 'INCREMENT':
+            let tempCart_i = [...state.cart];
+            const selected = tempCart_i.find(x => x.id === action.payload);
+            const index_i_cart = tempCart_i.indexOf(selected);
+            const p_i = tempCart_i[index_i_cart];
+            p_i.count += 1;
+            p_i.total += p_i.price;
+            const product_chs_i = state.products.find(x => x.id === action.payload);
+            let tempProducts_i = [...state.products];
+            const index_i = tempProducts_i.indexOf(product_chs_i);
+            let i_product = tempProducts_i[index_i];
+            /*i_product.count += 1;
+            i_product.total += i_product.price;*/
+            let subTotal_i = state.cartSubTotal;
+            subTotal_i += i_product.price;
+            const tempTax_i = subTotal_i * 0.1;
+            const tax_i= parseFloat(tempTax_i.toFixed(2));
+            const total_i = subTotal_i + tax_i;
+            return {
+                ...state,
+                products: tempProducts_i,
+                cart: tempCart_i,
+                cartTotal: total_i,
+                cartSubTotal: subTotal_i,
+                cartTax: tax_i
+            }
         case 'DECREMENT':
+            let tempCart_d = [...state.cart];
+            const selected_d = tempCart_d.find(x => x.id === action.payload);
+            const index_d_cart = tempCart_d.indexOf(selected_d);
+            const p_d = tempCart_d[index_d_cart];
+            p_d.count -= 1;
+            p_d.total -= p_d.price;
+            const product_chs_d = state.products.find(x => x.id === action.payload);
+            let tempProducts_d = [...state.products];
+            const index_d = tempProducts_d.indexOf(product_chs_d);
+            let d_product = tempProducts_d[index_d];
+            /*i_product.count += 1;
+            i_product.total += i_product.price;*/
+            let subTotal_d = state.cartSubTotal;
+            subTotal_d -= d_product.price;
+            const tempTax_d = subTotal_d * 0.1;
+            const tax_d = parseFloat(tempTax_d.toFixed(2));
+            const total_d = subTotal_d + tax_d;
+            return {
+                ...state,
+                products: tempProducts_d,
+                cart: tempCart_d,
+                cartTotal: total_d,
+                cartSubTotal: subTotal_d,
+                cartTax: tax_d
+            }
         case 'REMOVE_ITEM':
+            let tempCart = [...state.cart];
+            tempCart = tempCart.filter(x => x.id !== action.payload);
+            const product_chs_r = state.products.find(x => x.id === action.payload);
+            let tempProducts_r = [...state.products];
+            const index_r = tempProducts_r.indexOf(product_chs_r);
+            let r_product = tempProducts_r[index_r];
+            r_product.inCart = false;
+            r_product.count = 0;
+            let subTotal_r = state.cartSubTotal;
+            subTotal_r -= r_product.total;
+            const tempTax_r = subTotal_r * 0.1;
+            const tax_r = parseFloat(tempTax_r.toFixed(2));
+            const total_r = subTotal_r + tax_r;
+            r_product.total = 0;
+            return {
+                ...state,
+                products: tempProducts_r,
+                cart: tempCart,
+                cartTotal: total_r,
+                cartSubTotal: subTotal_r,
+                cartTax: tax_r
+            }
+        case 'CLEAR_CART':
+            return {
+                ...state,
+                cart: [],
+                cartSubTotal: 0,
+                cartTax: 0,
+                cartTotal: 0
+            }
         default:
             return state;
     }
@@ -517,7 +603,12 @@ var CartItem = /** @class */ (function (_super) {
                     React.createElement("button", { type: 'button', className: 'btn btn-outline-dark mx-1', onClick: function () { _this.props.increment(id); } },
                         React.createElement("i", { className: 'fa fa-plus' })),
                     React.createElement("span", { className: 'btn btn-outline-dark' }, count),
-                    React.createElement("button", { type: 'button', className: 'btn btn-outline-dark mx-1', onClick: function () { _this.props.decrement(id); } },
+                    React.createElement("button", { type: 'button', className: 'btn btn-outline-dark mx-1', onClick: function () {
+                            if (count === 1) { }
+                            else {
+                                _this.props.decrement(id);
+                            }
+                        } },
                         React.createElement("i", { className: 'fa fa-minus' })))),
             React.createElement("div", { className: 'col-10 mx-auto col-lg-2' },
                 React.createElement("button", { type: 'button', className: 'btn btn-warning', onClick: function () { _this.props.removeItem(id); } },
@@ -556,6 +647,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
@@ -567,10 +669,10 @@ var CartList = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     CartList.prototype.render = function () {
-        var list = this.props.cart.map(function (item) {
-            return React.createElement(CartItem_1.default, { key: item.id, item: item });
+        var list_c = this.props.cart.map(function (item) {
+            return React.createElement(CartItem_1.default, { key: item.id, item: __assign(__assign({}, item), { count: item.count }) });
         });
-        return (React.createElement("div", { className: 'container-fluid' }, list));
+        return (React.createElement("div", { className: 'container-fluid' }, list_c));
     };
     return CartList;
 }(React.Component));
@@ -609,19 +711,24 @@ var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 var react_redux_1 = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var productListAction_1 = __webpack_require__(/*! ../Actions/productListAction */ "./Actions/productListAction.js");
 var cartAction_1 = __webpack_require__(/*! ../Actions/cartAction */ "./Actions/cartAction.js");
 var CartTotals = /** @class */ (function (_super) {
     __extends(CartTotals, _super);
     function CartTotals() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.clearCart = function () {
+            _this.props.get_products();
+            _this.props.clearCart();
+        };
+        return _this;
     }
     CartTotals.prototype.render = function () {
-        var _this = this;
         return (React.createElement("div", { className: 'container' },
             React.createElement("div", { className: 'row' },
                 React.createElement("div", { className: 'col-10 mt-2 ml-sm-5 \r\n                        ml-md-auto col-sm-8 text-capitalize text-right' },
                     React.createElement(react_router_dom_1.Link, { to: "/" },
-                        React.createElement("button", { className: 'btn btn-outline-danger text-uppercase\r\n                                mb-3 px-5', type: 'button', onClick: function () { _this.props.get_products(); } }, "clear cart")),
+                        React.createElement("button", { className: 'btn btn-outline-danger text-uppercase\r\n                                mb-3 px-5', type: 'button', onClick: this.clearCart }, "clear cart")),
                     React.createElement("h5", null,
                         React.createElement("span", { className: 'text-title' }, "subtotal :"),
                         React.createElement("strong", null,
@@ -641,11 +748,11 @@ var CartTotals = /** @class */ (function (_super) {
     return CartTotals;
 }(React.Component));
 var mapStateToProps = function (state) { return ({
-    cartSubTotal: state.cartSubTotal,
-    cartTax: state.cartTax,
-    cartTotal: state.cartTotal
+    cartSubTotal: state.reducer.cartSubTotal,
+    cartTax: state.reducer.cartTax,
+    cartTotal: state.reducer.cartTotal
 }); };
-exports.default = react_redux_1.connect(mapStateToProps, { get_products: cartAction_1.get_products })(CartTotals);
+exports.default = react_redux_1.connect(mapStateToProps, { get_products: productListAction_1.get_products, clearCart: cartAction_1.clearCart })(CartTotals);
 
 
 /***/ }),
@@ -718,15 +825,14 @@ var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 var react_redux_1 = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+var productListAction_1 = __webpack_require__(/*! ../Actions/productListAction */ "./Actions/productListAction.js");
 var Details = /** @class */ (function (_super) {
     __extends(Details, _super);
     function Details() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.addToCart = function (id) {
-        };
-        return _this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Details.prototype.render = function () {
+        var _this = this;
         var _a = this.props.detailProduct, id = _a.id, company = _a.company, img = _a.img, info = _a.info, price = _a.price, title = _a.title, inCart = _a.inCart;
         return (React.createElement("div", { className: "container py-5" },
             React.createElement("div", { className: "row" },
@@ -750,16 +856,15 @@ var Details = /** @class */ (function (_super) {
                     React.createElement("p", { className: "text-capitalize font-weight-bold mt-3 mb-0" }, "some info about product :"),
                     React.createElement("p", { className: "text-muted lead" }, info),
                     React.createElement(react_router_dom_1.Link, { to: "/" },
-                        React.createElement(react_router_dom_1.Link, { to: "/" },
-                            React.createElement("button", { type: "button", className: "btn btn-outline-primary mr-3" }, "back to products")),
-                        React.createElement("button", { type: "button", className: "btn btn-outline-warning", onClick: this.addToCart.bind(this, id), disabled: inCart ? true : false }, inCart ? "inCart" : "add to cart"))))));
+                        React.createElement("button", { type: "button", className: "btn btn-outline-primary mr-3" }, "back to products")),
+                    React.createElement("button", { type: "button", className: "btn btn-outline-warning", onClick: function () { _this.props.add_to_cart(id); }, disabled: inCart ? true : false }, inCart ? "in cart" : "add to cart")))));
     };
     return Details;
 }(React.Component));
 var mapStateToProps = function (state) { return ({
     detailProduct: state.reducer.detail_product
 }); };
-exports.default = react_redux_1.connect(mapStateToProps, {})(Details);
+exports.default = react_redux_1.connect(mapStateToProps, { add_to_cart: productListAction_1.add_to_cart })(Details);
 
 
 /***/ }),
@@ -899,11 +1004,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var productListAction_1 = __webpack_require__(/*! ../Actions/productListAction */ "./Actions/productListAction.js");
+var react_redux_1 = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 var Navbar = /** @class */ (function (_super) {
     __extends(Navbar, _super);
     function Navbar() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    Navbar.prototype.componentDidMount = function () {
+        this.props.get_products();
+    };
     Navbar.prototype.render = function () {
         return (React.createElement("nav", { className: "navbar navbar-expand-sm bg-primary navbar-dark px-sm-s" },
             React.createElement(react_router_dom_1.Link, { to: '/' },
@@ -914,7 +1024,7 @@ var Navbar = /** @class */ (function (_super) {
     };
     return Navbar;
 }(React.Component));
-exports.default = Navbar;
+exports.default = react_redux_1.connect(null, { get_products: productListAction_1.get_products })(Navbar);
 
 
 /***/ }),
@@ -980,10 +1090,7 @@ var Product = /** @class */ (function (_super) {
     return Product;
 }(React.Component));
 Product.propTypes = {};
-var mapStateToProps = function (state) { return ({
-    products: state.reducer.products
-}); };
-exports.default = react_redux_1.connect(mapStateToProps, { get_product: productListAction_1.get_product, add_to_cart: productListAction_1.add_to_cart })(Product);
+exports.default = react_redux_1.connect(null, { get_product: productListAction_1.get_product, add_to_cart: productListAction_1.add_to_cart })(Product);
 var templateObject_1;
 
 
@@ -1011,35 +1118,42 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 var Product_1 = __webpack_require__(/*! ./Product */ "./components/Product.tsx");
 var Title_1 = __webpack_require__(/*! ./Title */ "./components/Title.tsx");
 var react_redux_1 = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-var productListAction_1 = __webpack_require__(/*! ../Actions/productListAction */ "./Actions/productListAction.js");
 var ProductList = /** @class */ (function (_super) {
     __extends(ProductList, _super);
     function ProductList() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ProductList.prototype.UNSAFE_componentWillMount = function () {
-        this.props.get_products();
-    };
     ProductList.prototype.render = function () {
-        var list = this.props.products.map(function (product) { return (React.createElement(Product_1.default, { key: product.id, product: product })); });
+        var list_p = this.props.products.map(function (product) { return (React.createElement(Product_1.default, { key: product.id, product: __assign(__assign({}, product), { inCart: product.inCart }) })); });
         return (React.createElement(React.Fragment, null,
             React.createElement("div", { className: "py-5" },
                 React.createElement("div", { className: "container" },
                     React.createElement(Title_1.default, { name: "our", title: "products" }),
-                    React.createElement("div", { className: "row" }, list)))));
+                    React.createElement("div", { className: "row" }, list_p)))));
     };
     return ProductList;
 }(React.Component));
 var mapStateToProps = function (state) { return ({
     products: state.reducer.products
 }); };
-exports.default = react_redux_1.connect(mapStateToProps, { get_products: productListAction_1.get_products })(ProductList);
+exports.default = react_redux_1.connect(mapStateToProps, null)(ProductList);
 
 
 /***/ }),

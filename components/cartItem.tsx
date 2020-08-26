@@ -5,6 +5,7 @@ var ReactDOM = require('react-dom');
 import { connect } from 'react-redux';
 import { increment, decrement, removeItem } from '../Actions/cartAction';
 
+
 class CartItem extends React.Component {
     render() {
         const { id, title, img, price, total, count } = this.props.item;
@@ -31,7 +32,10 @@ class CartItem extends React.Component {
                         </button>
                         <span className='btn btn-outline-dark'>{count}</span>
                         <button type='button' className='btn btn-outline-dark mx-1'
-                            onClick={() => { this.props.decrement(id) }}>
+                            onClick={() => {
+                                if (count === 1) { }
+                                else { this.props.decrement(id) }
+                            }}>
                             <i className='fa fa-minus'></i>
                         </button>
                     </div>
@@ -49,6 +53,4 @@ class CartItem extends React.Component {
         );
     }
 }
-
-
 export default connect(null, { increment, decrement, removeItem })(CartItem);

@@ -106,8 +106,5 @@ Product.propTypes = {
     
 };
 
-const mapStateToProps = state => ({
-    products: state.reducer.products
-});
 
-export default connect(mapStateToProps, { get_product, add_to_cart })(Product);
+export default connect(null, { get_product, add_to_cart })(Product);

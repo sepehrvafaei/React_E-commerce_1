@@ -5,15 +5,12 @@ var ReactDOM = require('react-dom');
 import Product from './Product';
 import Title from './Title';
 import { connect } from 'react-redux';
-import { get_products } from '../Actions/productListAction'
 
 class ProductList extends React.Component {
-    UNSAFE_componentWillMount() {
-        this.props.get_products();
-    }
+
     render() {
-        let list = this.props.products.map((product) => (
-            <Product key={product.id} product={product}/>
+        let list_p = this.props.products.map((product) => (
+            <Product key={product.id} product={{...product,inCart:product.inCart}}/>
         ));
         return (
             <React.Fragment>
@@ -21,7 +18,7 @@ class ProductList extends React.Component {
                     <div className="container">
                         <Title name="our" title="products" />
                         <div className="row">
-                            {list}
+                            {list_p}
                         </div>
                     </div>
                 </div>
@@ -33,4 +30,4 @@ class ProductList extends React.Component {
 const mapStateToProps = state => ({
     products:state.reducer.products
 });
-export default connect(mapStateToProps, {get_products})(ProductList);
+export default connect(mapStateToProps, null)(ProductList);

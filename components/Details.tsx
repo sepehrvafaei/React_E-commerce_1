@@ -4,10 +4,9 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 import { Link } from "react-router-dom";
 import { connect } from 'react-redux';
+import {add_to_cart } from '../Actions/productListAction';
 
 class Details extends React.Component {
-    addToCart = (id) => {
-    }
     render() {
         const { id, company, img, info, price, title, inCart } = this.props.detailProduct;
         return (
@@ -35,18 +34,17 @@ class Details extends React.Component {
                             some info about product :
                         </p>
                         <p className="text-muted lead">{info}</p>
-                        <Link to="/">
+                        
                             <Link to="/">
                                 <button type="button" className="btn btn-outline-primary mr-3">
                                     back to products
                                 </button>
                             </Link>
                             <button type="button" className="btn btn-outline-warning"
-                                onClick={this.addToCart.bind(this, id)}
+                            onClick={() => { this.props.add_to_cart(id)}}
                                 disabled={inCart ? true : false}>
-                                {inCart ? "inCart" : "add to cart"} 
+                                {inCart ? "in cart" : "add to cart"} 
                             </button>
-                        </Link>
                     </div>
                 </div>
             </div>
@@ -56,4 +54,4 @@ class Details extends React.Component {
 const mapStateToProps = state => ({
     detailProduct: state.reducer.detail_product
 });
-export default connect(mapStateToProps, {})(Details);
+export default connect(mapStateToProps, {add_to_cart})(Details);
