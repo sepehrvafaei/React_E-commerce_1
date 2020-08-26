@@ -109,6 +109,9 @@
     <TypeScriptCompile Include="components\Navbar.tsx">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="components\PayPalButton.tsx">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="components\Product.tsx">
       <SubType>Code</SubType>
     </TypeScriptCompile>

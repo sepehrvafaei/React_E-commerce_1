@@ -10,7 +10,6 @@ import EmptyCart from './EmptyCart';
 import CartTotals from './CartTotals';
 
 
-
 class Cart extends React.Component {
     render() {
         if (this.props.cart.length > 0) {
@@ -19,7 +18,7 @@ class Cart extends React.Component {
                     <Title name='your' title='cart' />
                     <CartColumns />
                     <CartList />
-                    <CartTotals/>
+                    <CartTotals history={this.props.history}/>
                 </section>
             );
         }

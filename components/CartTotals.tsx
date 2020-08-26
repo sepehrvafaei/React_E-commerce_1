@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { get_products } from '../Actions/productListAction';
 import { clearCart } from '../Actions/cartAction';
+import PayPalButton  from './PayPalButton';
 
 
 class CartTotals extends React.Component {
@@ -39,6 +40,11 @@ class CartTotals extends React.Component {
                             <span className='text-title'>total :</span>
                             <strong>$ {this.props.cartTotal}</strong>
                         </h5>
+                        <PayPalButton total={this.props.cartTotal}
+                            clearCart={this.props.clearCart}
+                            getProducts={this.props.get_products}
+                            history={this.props.history}
+                        />
                     </div>
                 </div>
             </div>
